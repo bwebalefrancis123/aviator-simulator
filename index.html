@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Betpawa Aviator Predictor (Simulator)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #00ff00;
+    }
+    #multiplier {
+      font-size: 2em;
+      margin: 20px 0;
+    }
+    button {
+      background: #00cc00;
+      color: black;
+      padding: 12px 25px;
+      border: none;
+      font-size: 1.1em;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 10px #00ff00;
+    }
+    button:hover {
+      background: #00e600;
+    }
+    canvas {
+      margin: 30px auto;
+      max-width: 600px;
+      background: #111;
+      border-radius: 10px;
+    }
+    #tip {
+      font-style: italic;
+      margin-top: 20px;
+      color: #00ffcc;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛫 Betpawa Aviator Predictor (Simulator)</h1>
+  <div id="multiplier">Press "Start Round"</div>
+  <button onclick="startRound()">🎮 Start Round</button>
+  <canvas id="myChart" height="100"></canvas>
+  <div id="tip">Waiting for game trend...</div>
+
+  <script>
+    let multipliers = [];
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Multiplier',
+          data: [],
+          borderColor: '#00ff00',
+          backgroundColor: 'rgba(0, 255, 0, 0.1)',
+          borderWidth: 2,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: '#ff0'
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#fff' }
+          },
+          x: {
+            ticks: { color: '#fff' }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: { color: '#fff' }
+          }
+        }
+      }
+    });
+
+    function generateMultiplier() {
+      const r = Math.random();
+      if (r < 0.01) return +(Math.random() * 150 + 50).toFixed(2);   // 1%
+      if (r < 0.05) return +(Math.random() * 40 + 10).toFixed(2);    // 4%
+      if (r < 0.2) return +(Math.random() * 8 + 2).toFixed(2);       // 15%
+      return +(Math.random() * 0.99 + 1.01).toFixed(2);              // 80%
+    }
+
+    function getTip(data) {
+      if (data.length < 5) return "Collecting data for predictions...";
+      const last = data.slice(-5);
+      const avg = last.reduce((a, b) => a + b, 0) / last.length;
+      const highCount = last.filter(x => x > 2).length;
+
+      if (highCount >= 4) return "🚀 Hot pattern! Try longer rides.";
+      if (avg < 1.5) return "⚠️ Risky zone. Avoid or cash out early.";
+      return "📊 Normal trend. Small bets may work.";
+    }
+
+    function startRound() {
+      const multiplier = generateMultiplier();
+      multipliers.push(multiplier);
+      if (multipliers.length > 30) multipliers.shift();
+
+      chart.data.labels = multipliers.map((_, i) => i + 1);
+      chart.data.datasets[0].data = multipliers;
+      chart.update();
+
+      document.getElementById("multiplier").innerText = `🎰 Multiplier: ${multiplier}x`;
+      document.getElementById("tip").innerText = getTip(multipliers);
+    }
+  </script>
+</body>
+</html>
